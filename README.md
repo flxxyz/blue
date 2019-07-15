@@ -10,7 +10,7 @@ ps: 为什么叫这个名字呢，因为最近在听[the blue hearts](https://zh
 使用`go`命令获取类库
 
 ```bash
-go get github.com/flxxyz/crontab
+go get github.com/flxxyz/blue
 ```
 
 ## 例子
