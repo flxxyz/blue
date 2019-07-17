@@ -2,6 +2,7 @@ package blue
 
 import (
 	"bytes"
+	"errors"
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 	"log"
@@ -82,24 +83,47 @@ func (h *Heart) HandlerPong(fn func(c *Client)) {
 }
 
 //广播消息
-func (h *Heart) Broadcast(data *bytes.Buffer) {
-	//Todo: 可能此时客户端管理器已经关掉了
+func (h *Heart) Broadcast(data *bytes.Buffer) error {
+	if h.closed() {
+		return errors.New("manage已关闭")
+	}
+
 	h.broadcast <- NewMsg(textMessage, data, nil)
+
+	return nil
 }
 
 //广播过滤的消息
-func (h *Heart) BroadcastFilter(data *bytes.Buffer, fn func(*Client) bool) {
+func (h *Heart) BroadcastFilter(data *bytes.Buffer, fn func(*Client) bool) error {
+	if h.closed() {
+		return errors.New("manage已关闭")
+	}
+
 	h.broadcast <- NewMsg(textMessage, data, fn)
+
+	return nil
 }
 
 //广播二进制消息
-func (h *Heart) BroadcastBinary(data *bytes.Buffer) {
+func (h *Heart) BroadcastBinary(data *bytes.Buffer) error {
+	if h.closed() {
+		return errors.New("manage已关闭")
+	}
+
 	h.broadcast <- NewMsg(binaryMessage, data, nil)
+
+	return nil
 }
 
 //广播过滤的二进制消息
-func (h *Heart) BroadcastBinaryFilter(data *bytes.Buffer, fn func(*Client) bool) {
+func (h *Heart) BroadcastBinaryFilter(data *bytes.Buffer, fn func(*Client) bool) error {
+	if h.closed() {
+		return errors.New("manage已关闭")
+	}
+
 	h.broadcast <- NewMsg(binaryMessage, data, fn)
+
+	return nil
 }
 
 //处理请求升级

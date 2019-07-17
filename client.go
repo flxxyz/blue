@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"github.com/gorilla/websocket"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -93,7 +92,7 @@ func (c *Client) writePump() {
 		select {
 		case m, ok := <-c.packet:
 			if !ok {
-				_ = c.conn.WriteMessage(closeMessage, emptyMessage.Bytes())
+				//_ = c.conn.WriteMessage(closeMessage, emptyMessage.Bytes())
 				c.heart.disconnectHandler(c)
 				return
 			}
@@ -171,14 +170,12 @@ func (c *Client) closed() bool {
 }
 
 func (c *Client) close() {
-	c.locker.Lock()
 	if !c.closed() {
+		c.locker.Lock()
 		c.exit = true
 		c.conn.Close()
 		close(c.packet)
-		delete(c.heart.clients, c)
-		log.Println("client close() 触发成功")
+		//delete(c.heart.clients, c)
+		c.locker.Unlock()
 	}
-	log.Println("client close() 触发失败")
-	c.locker.Unlock()
 }

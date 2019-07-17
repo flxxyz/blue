@@ -10,7 +10,7 @@ type ClientManage struct {
 	unregister chan *Client
 	broadcast  chan *Msg
 	locker     *sync.RWMutex
-	exit       bool
+	state      bool
 }
 
 //起一个goroutine读取新增，退出，广播的channel
@@ -25,21 +25,12 @@ func (cm *ClientManage) run() {
 			if _, ok := cm.clients[c]; ok {
 				cm.locker.Lock()
 				delete(cm.clients, c)
-				close(c.packet)
+				//close(c.packet)
 				cm.locker.Unlock()
 			}
 		case m := <-cm.broadcast:
 			cm.locker.RLock()
 			for c := range cm.clients {
-				//select {
-				//case c.packet <- m:
-				//default:
-				//    close(c.packet)
-				//    delete(cm.clients, c)
-				//}
-
-				//c.writeMessage(m)
-
 				if m.Filter != nil {
 					if m.Filter(c) {
 						c.writeMessage(m)
@@ -73,7 +64,7 @@ func (cm *ClientManage) closed() bool {
 	cm.locker.RLock()
 	defer cm.locker.RUnlock()
 
-	return cm.exit
+	return !cm.state
 }
 
 //实例客户端管理器
@@ -84,6 +75,6 @@ func NewClientManage() *ClientManage {
 		unregister: make(chan *Client),
 		broadcast:  make(chan *Msg),
 		locker:     &sync.RWMutex{},
-		exit:       false,
+		state:      true,
 	}
 }
