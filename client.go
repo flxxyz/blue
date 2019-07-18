@@ -93,7 +93,7 @@ func (c *Client) writePump() {
 		case m, ok := <-c.packet:
 			if !ok {
 				//_ = c.conn.WriteMessage(closeMessage, emptyMessage.Bytes())
-				c.heart.disconnectHandler(c)
+				//c.heart.disconnectHandler(c)
 				return
 			}
 
